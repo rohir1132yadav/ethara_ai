@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 const cors = require("cors");
 const dotenv = require("dotenv");
@@ -11,13 +12,21 @@ const PORT = process.env.PORT || 5000;
 app.use(
   cors({
     origin: process.env.CLIENT_URL || "*",
-  })
+  }),
 );
 app.use(express.json());
 
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
+
+const clientBuildPath = path.join(__dirname, "..", "client", "dist");
+if (process.env.NODE_ENV === "production") {
+  app.use(express.static(clientBuildPath));
+  app.get(/^\/(?!api).*/, (req, res) => {
+    res.sendFile(path.join(clientBuildPath, "index.html"));
+  });
+}
 
 app.use("/api/auth", require("./routes/authRoutes"));
 app.use("/api/projects", require("./routes/projectRoutes"));
