@@ -6,6 +6,15 @@ const connectDb = require("./config/db");
 
 dotenv.config();
 
+const requiredEnvs = ["MONGO_URI", "JWT_SECRET"];
+const missingEnvs = requiredEnvs.filter((key) => !process.env[key]);
+if (missingEnvs.length > 0) {
+  console.error(
+    `Missing required environment variables: ${missingEnvs.join(", ")}`,
+  );
+  process.exit(1);
+}
+
 const app = express();
 const PORT = process.env.PORT || 5000;
 
@@ -38,26 +47,15 @@ app.use((err, req, res, next) => {
 });
 
 const start = async () => {
-  let dbConnected = false;
-
   try {
     await connectDb();
-    dbConnected = true;
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
   } catch (error) {
     console.error("Startup error:", error.message);
-    console.error(
-      "Continuing start-up without MongoDB. API routes will fail until MONGO_URI is configured and Atlas network access is allowed.",
-    );
+    process.exit(1);
   }
-
-  app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
-    if (!dbConnected) {
-      console.warn(
-        "MongoDB is not connected. Backend APIs are unavailable until the database connection issue is fixed.",
-      );
-    }
-  });
 };
 
 start();
