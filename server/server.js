@@ -38,15 +38,26 @@ app.use((err, req, res, next) => {
 });
 
 const start = async () => {
+  let dbConnected = false;
+
   try {
     await connectDb();
-    app.listen(PORT, () => {
-      console.log(`Server running on port ${PORT}`);
-    });
+    dbConnected = true;
   } catch (error) {
     console.error("Startup error:", error.message);
-    process.exit(1);
+    console.error(
+      "Continuing start-up without MongoDB. API routes will fail until MONGO_URI is configured and Atlas network access is allowed.",
+    );
   }
+
+  app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+    if (!dbConnected) {
+      console.warn(
+        "MongoDB is not connected. Backend APIs are unavailable until the database connection issue is fixed.",
+      );
+    }
+  });
 };
 
 start();

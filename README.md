@@ -86,6 +86,7 @@ Deploy as two services from the same repo:
      - `MONGO_URI`
      - `JWT_SECRET`
      - `CLIENT_URL` (frontend URL after deploy)
+   - Important: MongoDB Atlas must allow Railway outbound IPs, or use `0.0.0.0/0` for testing in Atlas Network Access.
 
 2. Frontend service
    - Root directory: `client`
@@ -93,5 +94,10 @@ Deploy as two services from the same repo:
    - Start command: `npm run preview -- --host 0.0.0.0 --port $PORT`
    - Environment variable:
      - `VITE_API_URL` (backend URL + `/api`)
+
+If you want to deploy the backend and frontend together as a single Railway service, use the repo root with:
+
+- Build command: `npm run build`
+- Start command: `npm start`
 
 Once deployed, update backend `CLIENT_URL` with the frontend domain.
